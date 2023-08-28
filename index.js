@@ -26,7 +26,7 @@ app.get("/generate", async (req, res) => {
   try {
     const {code} = req.query
     const qrImage = qr.image(code, { type: 'png' });
-    const publicDirectory = path.join(process.cwd(), 'public');
+    const publicDirectory = path.resolve(process.cwd(), 'public');
     qrImage.pipe(require('fs').createWriteStream(`${publicDirectory}/${code}.png`));
     const result = await cloudinary.uploader.upload(`${publicDirectory}/${code}.png`, {public_id: `qrcode/${code}`});
     return res.json({
