@@ -27,14 +27,13 @@ app.get("/generate", async (req, res) => {
   try {
     const {code} = req.query
     const qrImage = qr.image(code, { type: 'png' });
-    const publicDirectory = path.join(process.cwd(), 'public');
-    await qrImage.pipe(require('fs').createWriteStream(`${publicDirectory}/${code}.png`));
-    const file = await fs.readFileSync(`${publicDirectory}/${code}.png`);
-    const stream = cloudinary.uploader.upload_stream({folder: `qrcode`}, (error, result) => {
-      if (error) return console.error(error);
-      res.status(200).json(result);
+    const file = path.join(process.cwd(), `public/${code}.png`);
+    await qrImage.pipe(require('fs').createWriteStream(file));
+    const result = await cloudinary.uploader.upload(file, {public_id: `qrcode/${code}`})
+    return res.json({
+      msg: 'success',
+      result
     })
-    streamifier.createReadStream(file).pipe(stream);
   } catch (error) {
     console.log(error);
     return res.send("Error")
