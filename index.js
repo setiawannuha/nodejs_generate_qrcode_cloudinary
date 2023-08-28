@@ -3,6 +3,8 @@ const express = require('express')
 const cors = require("cors")
 const cloudinary = require("cloudinary").v2
 const qr = require("qr-image")
+const path = require('path');
+const fs = require('fs');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME, 
@@ -24,8 +26,9 @@ app.get("/generate", async (req, res) => {
   try {
     const {code} = req.query
     const qrImage = qr.image(code, { type: 'png' });
+    const publicDirectory = path.join(process.cwd(), 'public');
     qrImage.pipe(require('fs').createWriteStream(`public/${code}.png`));
-    const result = await cloudinary.uploader.upload(`public/${code}.png`, {public_id: `qrcode/${code}`});
+    const result = await cloudinary.uploader.upload(`${publicDirectory}/${code}.png`, {public_id: `qrcode/${code}`});
     return res.json({
       msg: "success",
       result
